@@ -1,0 +1,7 @@
+This tool, called TDA (Traffic Dynamics Analyser) was developed under financial assistance award 60NANB21D118 from United Stated Department of Commerce, National Institute of Standards and Technology to the Fire Protection Research Foundation.
+
+Copyright © 2022 Arthur Rohaert of Lund University 
+TDA and any related documentation are licensed under the GNU Public License version 3: https://www.gnu.org/licenses/gpl-3.0.en.html and subject to the following conditions:
+TDA extracts data from the PeMS database (dot.ca.gov/programs/traffic-operations/mpr/pems-source), processes this data and generates graphs that visualize the macroscopic traffic dynamics. It also fits the data to established models.
+
+USE OF THIS TOOL IS AT THE USER’S OWN RISK; IT IS PROVIDED AS IS AND AS AVAILABLE WITHOUT GUARANTEE OR WARRANTY OF ANY KIND, EXPRESS OR IMPLIED (INCLUDING THE WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE) AND WITHOUT REPRESENTATION OR WARRANTY REGARDING ITS ACCURACY, COMPLETENESS, USEFULNESS, TIMELINESS, RELIABILITY OR APPROPRIATENESS. NFPA ASSUMES NO RESPONSIBILITY OR LIABILITY IN CONNECTION WITH THE INFORMATION OR OPINIONS CONTAINED IN OR EXPRESSED BY THIS TOOL, ITS USE OR OUTPUT.
