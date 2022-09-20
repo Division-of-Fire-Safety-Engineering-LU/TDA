@@ -11,13 +11,13 @@ The creator assumes no responsibility or liability in connection with the inform
 ## License
 TDA is licensed under the GNU General Public License v3.0.
 
-##Disclaimer
+## Disclaimer
 Important Notice and Disclaimers before downloading the TDA:
 By accessing, downloading and using the TDA, you expressly agree to the following notices and disclaimers, as well as the End User License Agreement found here.  
 
-##Installation guide
+## Installation guide
 1. Install python
 2. Make sure the required packages are installed:
    [os](https://docs.python.org/3/library/os.html), [datetime](https://docs.python.org/3/library/datetime.html), [requests](https://pypi.org/project/requests/), [numpy](https://numpy.org/), [scipy](https://scipy.org/), [pandas](https://pandas.pydata.org/), [matplotlib](https://matplotlib.org/), [threading](https://docs.python.org/3/library/threading.html), [kivy](https://kivy.org/doc/stable/gettingstarted/installation.html);
 3. Run 'main.py'
-4. Read more about how to use the tool [in the user guide](), or [watch this tutorial on YouTube](https://youtu.be/QvHip4qKFhM).
+4. Read more about how to use the tool [in the user guide](https://github.com/Division-of-Fire-Safety-Engineering-LU/TDA/blob/main/TDA%20User%20Guide.pdf), or [watch this tutorial on YouTube](https://youtu.be/QvHip4qKFhM).
