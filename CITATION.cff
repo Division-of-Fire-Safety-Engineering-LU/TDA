@@ -1,0 +1,38 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Rohaert
+    given-names: Arthur
+    orcid: https://orcid.org/0000-0001-5299-3014
+title: Traffic Dynamics Analyser (TDA)
+version: v1.0
+doi: 10.5281/zenodo.7181486
+date-released: 2022-10-10
+url: "https://github.com/Division-of-Fire-Safety-Engineering-LU/TDA"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Rohaert"
+    given-names: "Arthur"
+    orcid: "https://orcid.org/0000-0001-5299-3014"
+  - family-names: "Kuligowski"
+    given-names: "Erica"
+    orcid: "https://orcid.org/0000-0001-6121-4983"
+  - family-names: "Ardinge"
+    given-names: "Adam "
+  - family-names: "Wahlqvist"
+    given-names: "Jonathan"
+  - family-names: "Gwynne"
+    given-names: "Steve"
+    orcid: "https://orcid.org/0000-0002-2758-3897"
+  - family-names: "Kimball"
+    given-names: "Amanda"
+  - family-names: "Bénichou"
+    given-names: "Noureddine"
+  - family-names: "Ronchi"
+    given-names: "Enrico"
+    orcid: "0000-0002-2789-6359"
+  journal: "[Submitted for Peer-Review to an International Journal]"
+  month: 5
+  title: "Traffic dynamics during the 2019 Kincade wildfire evacuation"
+  year: 2022
