@@ -1,4 +1,5 @@
 # TDA
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7181486.svg)](https://doi.org/10.5281/zenodo.7181486)
 
 This tool called TDA (Traffic Dynamics Analyser) extracts data from [the PeMS database](dot.ca.gov/programs/traffic-operations/mpr/pems-source), processes this data and generates graphs that visualize the macroscopic traffic dynamics. It also fits the data to established models.
 
