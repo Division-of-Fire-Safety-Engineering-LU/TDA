@@ -11,8 +11,9 @@ import datetime
 import numpy as np
 import requests
 import pandas as pd
-from scipy.optimize import minimize
+from models import userdefined_models
 from plots import plot_detector_diagram, plot_detector_series, plot_data
+from lmfit import Minimizer, Parameters #•, report_fit
 
 # %%--------------------------------------------------------------- Open thread
 
@@ -169,84 +170,134 @@ def execution(gui, input_information):
 
     # --------------------------------------------------------------- plot fits
     if input_information["generate_plots"][3]:
-        # establish models
-
-        greenshield = {
-            'name': 'Greenshield et al. (1935)',
-            'parameters': ('vf', 'kj'),
-            'function': lambda k,vf,kj:vf*(1-np.where(k<=0,0, np.where(k>kj,kj,k))/kj),
-            'initial parameters': (110, 60),
-            'keypoints' : [1]}
-
-        underwood = {
-            'name': 'Underwood (1961)',
-            'parameters': ('vf', 'kc'),
-            'function': lambda k, vf, kc : vf*np.exp(-np.where(k<=0,0,k)/kc),
-            'initial parameters': (110, 20)}
-
-        drake = {
-            'name': 'Drake et al. (1967)',
-            'parameters': ('vf', 'kc'),
-            'function': lambda k, vf, kc : vf*np.exp(-0.5*(np.where(k<=0,0,k)/kc)**2),
-            'initial parameters': (110, 20)}
-
-        daganzo = {
-            'name': 'Daganzo (1994)',
-            'parameters': ('vf', 'kc', 'kj'),
-            'function': lambda k,vf,kc,kj:np.where(k>=kj,0,np.where(k<=kc,vf,
-                                                   vf*(kc/k)*(kj-k)/(kj-kc))),
-            'initial parameters': (110, 20, 60),
-            'keypoints' : [1,2]}
-
-        def function_van_aerde(k, a, b, c, vf):
-            """ This function calculates the vehicle speeds, based on the densities. It
-            employs a linear iterpolation rather than solving the non linear problem.
-            The distance between the velocity points is about 0.1 km/h. """
-            v_list = np.linspace(vf-0.1, 0, round(10*vf))
-            k_list = np.where(v_list>=vf,0,1/(a+b/(vf-v_list)+c*v_list))
-            return np.interp(k, k_list, v_list)
-
-        def parameters_van_aerde(vf, vc, kc, kj):
-            """ This function calculates the parameters a,b,c,vf which are employed in
-            the van aerde model, from the more phyiscal parameters vf, vc, kc, kj."""
-            a = vf*(2*vc-vf)/(kj*vc**2)
-            b = vf*(vf-vc)**2/(kj*vc**2)
-            c = (1/(vc*kc))-vf/(kj*vc**2)
-            return a,b,c,vf
-
-        van_aerde = {
-            'name': 'Van Aerde & Rakha (1995)',
-            'parameters': ('a','b','c','vf'),
-            'function': function_van_aerde,
-            'initial parameters': parameters_van_aerde(110, 80, 20, 60)}
-
-        del_castillo  = {
-            'name': 'Del Castillo & Benítez (1995)',
-            'parameters': ('vf', 'kj','c'),
-            'function': lambda k, vf, kj, c: np.where(k>=kj,0,vf*(1-np.exp((c/vf)*(1-(kj/k))))),
-            'initial parameters': (105, 65, 46)}
-
-        models = [greenshield, underwood, drake,
-                  daganzo, van_aerde, del_castillo]
+        
+        if input_information["user-defined models"]:
+            models = userdefined_models()
+            input_information["fit_models"] = [True]*len(models)
+        else:
+            # establish models
+    
+            params = Parameters()
+            params.add_many(('vf', 110), ('kj', 60))
+            greenshields = {
+                'name': 'Greenshields et al. (1935)',
+                'parameters': params,
+                'function': lambda k,vf,kj:vf*(1-np.where(k<=0,0, np.where(k>kj,kj,k))/kj),
+                'keypoints' : [1]}
+            
+            params = Parameters()
+            params.add_many(('vf', 110), ('kc', 20))
+            underwood = {
+                'name': 'Underwood (1961)',
+                'parameters': params,
+                'function': lambda k, vf, kc : vf*np.exp(-np.where(k<=0,0,k)/kc)}
+            
+            params = Parameters()
+            params.add_many(('vf', 110), ('kc', 20))
+            drake = {
+                'name': 'Drake et al. (1965)',
+                'parameters': params,
+                'function': lambda k, vf, kc : vf*np.exp(-0.5*(np.where(k<=0,0,k)/kc)**2)}
+            
+            params = Parameters()
+            params.add_many(('vf', 110), ('kc', 20), ('kj', 60))
+            daganzo = {
+                'name': 'Daganzo (1994)',
+                'function': lambda k,vf,kc,kj:np.where(k>=kj,0,np.where(k<=kc,vf,vf*(kc/k)*(kj-k)/(kj-kc))),
+                'parameters': params,
+                'keypoints' : [1,2]}
+            
+            def function_van_aerde(k, a, b, c, vf):
+                """ This function calculates the vehicle speeds, based on the densities. It
+                employs a linear iterpolation rather than solving the non linear problem.
+                The distance between the velocity points is about 0.1 km/h. """
+                v_list = np.linspace(vf-0.1, 0, round(10*vf))
+                k_list = np.where(v_list>=vf,0,1/(a+b/(vf-v_list)+c*v_list))
+                return np.interp(k, k_list, v_list)
+            
+            def parameters_van_aerde(vf, vc, kc, kj):
+                """ This function calculates the parameters a,b,c,vf which are employed in
+                the van aerde model, from the more phyiscal parameters vf, vc, kc, kj."""
+                a = vf*(2*vc-vf)/(kj*vc**2)
+                b = vf*(vf-vc)**2/(kj*vc**2)
+                c = (1/(vc*kc))-vf/(kj*vc**2)
+                return a,b,c,vf
+            
+            params = Parameters()
+            params.add_many(('a', 0.014), ('b', 0.26), ('c', 0.00033), ('vf', 110))
+            van_aerde = {
+                'name': 'Van Aerde & Rakha (1995)',
+                'parameters': params,
+                'function': function_van_aerde}
+            
+            params = Parameters()
+            params.add_many(('vf', 110), ('kj', 100), ('c',46))
+            del_castillo  = {
+                'name': 'Del Castillo & Benítez (1995)',
+                'parameters': params,
+                'function': lambda k, vf, kj, c: np.where(k>=kj,0,vf*(1-np.exp((c/vf)*(1-(kj/k)))))}
+            
+            params = Parameters()
+            params.add_many(('vf', 110), ('kc', 20), ('m',2))
+            cheng  = {
+                'name': 'Cheng et al. (2021)',
+                'parameters': params,
+                'function': lambda k, vf, kc, m: vf/((1+(k/kc)**m)**(2/m))}
+            
+            def function_hcm(k, vf, kc, kj, qb, qc, a):
+                #[vf, vc, kc, kj, qb, qc, a] = road_parameters[road_name]
+                kb = qb/vf
+                vc = qc/kc
+                q_aux = np.linspace(qb, qc, 50)
+                v_aux = vf-(vf-vc)*((q_aux-qb)/(qc-qb))**a
+                k_aux = q_aux/v_aux
+            
+                Ri = k <= kb
+                Rii = np.logical_and(kb < k, k <= kc)
+                Riii = kc < k
+            
+                v = np.zeros_like(k)
+                v[Ri] = vf
+                v[Rii] = np.interp(k[Rii], k_aux, v_aux)
+                v[Riii] = qc*((kj-k[Riii])/((kj-kc)*k[Riii]))
+                return v
+            
+            params = Parameters() # (NAME VALUE VARY MIN  MAX  EXPR  BRUTE_STEP)
+            params.add_many(('vf', 110), ('kc',22.4), ('kj', 94.4), ('qb', 1013, True, 0.0, 2000), ('qc', 1907), ('a', 2))
+            hcm = {'name': 'Highway Capacity Manual (2016)',
+                   'function' : function_hcm,
+                   'parameters': params}
+            models = [greenshields, underwood, drake, daganzo, van_aerde, del_castillo, cheng, hcm]
 
         # ------------------------------------------------ fitting and plotting
-        for index, model in enumerate(models):
-            if not input_information["fit_models"][index]: continue
-            gui.update(0, f"fitting and plotting {model['name']}")
-            model = fit_data(data, model)
-            plot_data(input_information, data, model, model['name'])
-            gui.update(50)
+        models = fit_data(gui, input_information, data, models, weighting = True)
 
         # ------------------------------ saving all parameters in an excel file
         gui.update(0, "saving optimal parameter values")
-        p = {}
+
+        margin = 1.959963984540054
+        df_para = {}
         scenarios = set(data.index.get_level_values(2))
-        for scenario in scenarios:
-            for index, model in enumerate(models):
-                if not input_information["fit_models"][index]: continue
-                p[model['name'] + ' - ' + scenario] = dict(zip(model['parameters'], model['optimal parameters ('+scenario.lower()+')']))
-        p = pd.DataFrame.from_dict(p)
-        p.to_excel(os.path.join(wd,'fitting parameters.xlsx'))
+        for index, model in enumerate(models):
+            if not input_information["fit_models"][index]: continue
+            for scenario in scenarios:
+                parameters = model['Result ('+scenario.lower()+')'].params
+                dictionary = {}
+                for para in parameters.keys():
+                    value = parameters[para].value
+                    if value is None: value = np.nan
+                    stderr = parameters[para].stderr
+                    if stderr is None:
+                        stderr = np.nan
+                    else:
+                        stderr *= margin
+                    dictionary[para + ' value'] = value
+                    dictionary[para + ' margin'] = stderr
+                dictionary['wrmse'] = np.sqrt(np.sum(model['Result ('+scenario.lower()+')'].residual**2))
+                df_para[model['name'] + ' - ' + scenario.lower()] = dictionary
+        
+        df_para = pd.DataFrame.from_dict(df_para)
+        df_para.to_excel(os.path.join(wd,'fitting parameters.xlsx'))
 
     # -------------------------------------------------------- Wrapping this up
     gui.update(1000, "done! :)")
@@ -377,15 +428,18 @@ def get_indexes_and_dates(data):
     detectors = {key:0 for key in detectors}
     return detectors, dates
 
-def least_squares_error(parameters, df, model):
+def lse(params, real_densities, real_speed, model, weights = []):
     """ This function calculates the least square error of a certain
     model, given a certain dataset. """
-    real_densities = df['T Density (veh/km/lane)']
-    real_speed = df['T Speed (km/h)']
-    pred_speed = model['function'](real_densities, *parameters)
-    return np.sqrt(np.sum((real_speed - pred_speed)**2)/len(real_speed))
+    pred_speed = model['function'](real_densities, **params.valuesdict())
+    if len(weights) == 0:
+        # return np.sqrt(np.sum((real_speed-pred_speed)**2)/len(real_speed))
+        return ((real_speed-pred_speed)) #/len(real_speed)
+    else:
+        # return np.sqrt(np.sum(weights*(real_speed-pred_speed)**2)/sum(weights))
+        return (weights*(real_speed-pred_speed)) #/sum(weights)
 
-def fit_data(data, model):
+def fit_data(gui, input_information, data, models, weighting = True):
     """ This function fits a certain model to a given dataset by minimizing
     the least squares error. """
 
@@ -395,15 +449,43 @@ def fit_data(data, model):
         # don't consider intervals without traffic
         df = data.loc[:,:,scenario]
         df = df[df['T Flow (veh/h/lane)'] != 0]
+        df = df.sort_values(by = 'T Density (veh/km/lane)')
+        real_densities = df['T Density (veh/km/lane)']
+        real_speed = df['T Speed (km/h)']
+        
+        if weighting:
+            weights = np.array([2*real_densities[0]-real_densities[1],
+                                *real_densities,
+                                2*real_densities[-1]-real_densities[-2]])
+            weights = np.array([0.5*(weights[i+1]-weights[i-1]) \
+                                for i in range(1,len(weights)-1)])
+            weights = weights/sum(weights)
+            weights = np.sqrt(weights)
+        else:
+            weights = []
 
-        # optimise
-        result = minimize(fun=least_squares_error,
-                          x0=model['initial parameters'],
-                          args=(df, model), method = 'Powell')
+        for index, model in enumerate(models):
+            if not input_information["fit_models"][index]: continue
+            gui.update(0, f"fitting {model['name']}")
+            
+            params = model['parameters']
+            minner = Minimizer(lse, params, fcn_args=(real_densities,
+                                                      real_speed, model,
+                                                      weights))
+            result = minner.minimize()
+            if not result.success:
+                raise Exception('Could not fit "'+ model['name'] +'" to the data')
 
-        if not result['success']:
-            raise Exception('Could not fit "'+ model['name'] +'" to the data')
-
-        model['optimal parameters ('+scenario.lower()+')'] = result['x']
-        model['result of the fitting process ('+scenario.lower()+')'] = result
-    return model
+            model['Result ('+scenario.lower()+')'] = result
+            
+            if weighting:
+                WME = sum(weights*(result.residual**2)/(sum(weights)))
+                RWMSE = np.sqrt(WME)
+                model['RWMSE ('+scenario.lower()+')'] = RWMSE
+            gui.update(25/len(scenarios))
+    for index, model in enumerate(models):
+        if not input_information["fit_models"][index]: continue
+        gui.update(0, f"plotting {model['name']}")
+        plot_data(input_information, data, model, model['name'])
+        gui.update(25)
+    return models

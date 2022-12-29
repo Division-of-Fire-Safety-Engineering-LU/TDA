@@ -1,0 +1,562 @@
+#: import Factory kivy.factory.Factory
+
+<SpinOption@SpinnerOption>:
+    size_hint: 1, None
+    height: "30 dp"
+    background_color: 0.40, 0.40, 0.40, 1
+    color: 0.95, 0.95, 0.95, 1
+
+Root:
+
+<Root>:
+    orientation: "vertical"
+    spacing: "4dp"
+    padding: "4dp"
+    canvas.before:
+        Color:
+            rgba: (0.14, 0.14, 0.14, 1)
+        Rectangle:
+            size: self.width, 133
+    
+    ScrollView:
+        BoxLayout:
+            size_hint: 1, None
+            height: self.minimum_height
+            orientation: "vertical"
+            spacing: "0dp"
+            padding: ("0dp", "0dp", "5dp", "0dp")
+            ##################################################### Project start
+            Label:
+                text: "Choose a directory for the datasheets and figures"
+                text_size: self.size
+                halign: "left"
+                valign: "middle"
+                size_hint: 1, None
+                height: "30 dp"
+                color: ((1, 1, 1, 1) if not root.executing else (0.5, 0.5, 0.5, 1))
+            Button:
+                text: "  "+root.directory
+                text_size: self.size
+                halign: "left"
+                valign: "middle"
+                size_hint: 1, None
+                height: "30 dp"
+                on_release: root.OpenDirectoryChooser()
+                disabled: root.executing
+                                
+            ###################################################### Data options
+            Label:
+                text: "Choose where you want to get your data from"
+                text_size: self.size
+                halign: "left"
+                valign: "middle"
+                size_hint: 1, None
+                height: "30 dp"
+                color: ((1, 1, 1, 1) if not root.executing else (0.5, 0.5, 0.5, 1))
+            GridLayout:
+                cols: 2
+                size_hint: 1, None
+                height: "60 dp"
+                CheckBox:
+                    group: "data options"
+                    size_hint: None, 1
+                    width: "30 dp"
+                    on_active: root.data_option(True)
+                    active: True
+                    disabled: root.executing
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "local file"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if not root.executing else (0.5, 0.5, 0.5, 1))
+                CheckBox:
+                    group: "data options"
+                    size_hint: None, 1
+                    width: "30 dp"
+                    on_active: root.data_option(False)
+                    disabled: root.executing
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "online database"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if not root.executing else (0.5, 0.5, 0.5, 1))
+            Label:
+                size_hint: 1, None
+                height: "30 dp"
+                text: "Choose a file"
+                text_size: self.size
+                halign: "left"
+                valign: "middle"
+                color: ((1, 1, 1, 1) if (root.get_files_locally and (not root.executing)) else (0.5, 0.5, 0.5, 1))
+            Button:
+                text: "  "+root.path
+                text_size: self.size
+                halign: "left"
+                valign: "middle"
+                size_hint: 1, None
+                height: "30 dp"
+                on_release: root.OpenFileChooser()
+                disabled: (not root.get_files_locally) or root.executing
+            Label:
+                size_hint: 1, None
+                height: "30 dp"
+                text: "Specify your username"
+                text_size: self.size
+                halign: "left"
+                valign: "middle"
+                color: ((1, 1, 1, 1) if ((not root.get_files_locally) and (not root.executing)) else (0.5, 0.5, 0.5, 1))
+            TextInput:
+                id: username
+                size_hint: 1, None
+                height: "30 dp"
+                text: "user@example.com"
+                disabled: root.get_files_locally  or root.executing
+                multiline: False
+            Label:
+                size_hint: 1, None
+                height: "30 dp"
+                text: "Specify your password"
+                text_size: self.size
+                halign: "left"
+                valign: "middle"
+                color: ((1, 1, 1, 1) if ((not root.get_files_locally) and (not root.executing)) else (0.5, 0.5, 0.5, 1))
+            TextInput:
+                id: password
+                size_hint: 1, None
+                height: "30 dp"
+                text: "5lbiBw78!3X2"
+                disabled: root.get_files_locally or root.executing
+                multiline: False
+            Label:
+                size_hint: 1, None
+                height: "30 dp"
+                text: "Choose detectors (use the correct syntax)"
+                text_size: self.size
+                halign: "left"
+                valign: "middle"
+                color: ((1, 1, 1, 1) if ((not root.get_files_locally) and (not root.executing)) else (0.5, 0.5, 0.5, 1))
+            TextInput:
+                id: detectors
+                size_hint: 1, None
+                height: "120 dp"
+                text: "L1N: 0123456\nL2N: 1234567\nL1S: 2345678\nL2S: 3456789"
+                disabled: root.get_files_locally or root.executing
+            Label:
+                size_hint: 1, None
+                height: "30 dp"
+                text: "Choose dates (use the correct syntax)"
+                text_size: self.size
+                halign: "left"
+                valign: "middle"
+                color: ((1, 1, 1, 1) if ((not root.get_files_locally) and (not root.executing)) else (0.5, 0.5, 0.5, 1))
+            TextInput:
+                id: dates
+                size_hint: 1, None
+                height: "120 dp"
+                text: "Dataset1:\n12/16/2020 00:00 till 12/17/2020 23:59\n12/23/2020 00:00 till 12/24/2020 23:59\nDataset2:\n12/30/2020 00:00 till 12/31/2020 23:59"
+                disabled: root.get_files_locally or root.executing
+            ###################################################### Plot options
+            Label:
+                text: "Choose what you want to plot"
+                text_size: self.size
+                halign: "left"
+                valign: "middle"
+                size_hint: 1, None
+                height: "30 dp"
+                color: ((1, 1, 1, 1) if not root.executing else (0.5, 0.5, 0.5, 1))
+            GridLayout:
+                cols: 2
+                size_hint: 1, None
+                height: "120 dp"
+                CheckBox:
+                    size_hint: None, 1
+                    width: "30 dp"
+                    active: True
+                    on_active: root.plot_individual_scatters(self.state)
+                    disabled: root.executing
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "scatterplots of speed, flow and density for each detector individually"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if not root.executing else (0.5, 0.5, 0.5, 1))
+                CheckBox:
+                    size_hint: None, 1
+                    width: "30 dp"
+                    active: True
+                    on_active: root.plot_individual_series(self.state)
+                    disabled: root.executing
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "time series of speed, flow and density for each detector individually"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if not root.executing else (0.5, 0.5, 0.5, 1))
+                CheckBox:
+                    size_hint: None, 1
+                    width: "30 dp"
+                    active: True
+                    on_active: root.plot_scatter(self.state)
+                    disabled: root.executing
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "scatterplots of speed, flow and density for the entire database"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if not root.executing else (0.5, 0.5, 0.5, 1))
+                CheckBox:
+                    size_hint: None, 1
+                    width: "30 dp"
+                    active: True
+                    on_active: root.plot_fits(self.state)
+                    disabled: root.executing
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "fitted models"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if not root.executing else (0.5, 0.5, 0.5, 1))
+            Label:
+                text: "Choose which models you want to fit to the data"
+                text_size: self.size
+                halign: "left"
+                valign: "middle"
+                size_hint: 1, None
+                height: "30 dp"
+                color: ((1, 1, 1, 1) if ((not root.disable_fits) and (not root.executing)) else (0.5, 0.5, 0.5, 1))
+            GridLayout:
+                cols: 2
+                size_hint: 1, None
+                height: "270 dp"
+                CheckBox:
+                    size_hint: None, 1
+                    width: "30 dp"
+                    active: True
+                    disabled: root.disable_fits or root.executing or root.UD
+                    id: GS
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "Greenshields et al. (1935)"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if ((not root.disable_fits) and (not root.executing) and (not root.UD)) else (0.5, 0.5, 0.5, 1))
+                CheckBox:
+                    size_hint: None, 1
+                    width: "30 dp"
+                    active: True
+                    disabled: root.disable_fits or root.executing or root.UD
+                    id: UN
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "Underwood (1961)"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if ((not root.disable_fits) and (not root.executing) and (not root.UD)) else (0.5, 0.5, 0.5, 1))
+                CheckBox:
+                    size_hint: None, 1
+                    width: "30 dp"
+                    active: True
+                    disabled: root.disable_fits or root.executing or root.UD
+                    id: DR
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "Drake et al. (1965)"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if ((not root.disable_fits) and (not root.executing) and (not root.UD)) else (0.5, 0.5, 0.5, 1))
+                CheckBox:
+                    size_hint: None, 1
+                    width: "30 dp"
+                    active: True
+                    disabled: root.disable_fits or root.executing or root.UD
+                    id: DA
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "Daganzo (1994)"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if ((not root.disable_fits) and (not root.executing) and (not root.UD)) else (0.5, 0.5, 0.5, 1))
+                CheckBox:
+                    size_hint: None, 1
+                    width: "30 dp"
+                    active: True
+                    disabled: root.disable_fits or root.executing or root.UD
+                    id: VA
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "Van Aerde & Rakha (1995)"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if ((not root.disable_fits) and (not root.executing) and (not root.UD)) else (0.5, 0.5, 0.5, 1))
+                CheckBox:
+                    size_hint: None, 1
+                    width: "30 dp"
+                    active: True
+                    disabled: root.disable_fits or root.executing or root.UD
+                    id: DE
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "Del Castillo & Benítez (1995)"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if ((not root.disable_fits) and (not root.executing) and (not root.UD)) else (0.5, 0.5, 0.5, 1))
+                CheckBox:
+                    size_hint: None, 1
+                    width: "30 dp"
+                    active: True
+                    disabled: root.disable_fits or root.executing or root.UD
+                    id: HC
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "HCM (2016)"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if ((not root.disable_fits) and (not root.executing) and (not root.UD)) else (0.5, 0.5, 0.5, 1))
+                CheckBox:
+                    size_hint: None, 1
+                    width: "30 dp"
+                    active: True
+                    disabled: root.disable_fits or root.executing or root.UD
+                    id: CH
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "Cheng et al. (2021)"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if ((not root.disable_fits) and (not root.executing) and (not root.UD)) else (0.5, 0.5, 0.5, 1))
+                CheckBox:
+                    group: "manual_models"
+                    size_hint: None, 1
+                    width: "30 dp"
+                    active: False
+                    disabled: root.disable_fits or root.executing
+                    on_release: root.manual_models()
+                    id: UD
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "User-defined models (models.py)"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if ((not root.disable_fits) and (not root.executing)) else (0.5, 0.5, 0.5, 1))
+            Label:
+                text: "Choose the range of the plots"
+                text_size: self.size
+                halign: "left"
+                valign: "middle"
+                size_hint: 1, None
+                height: "30 dp"
+                color: ((1, 1, 1, 1) if ((not root.disable_all_figures) and (not root.executing)) else (0.5, 0.5, 0.5, 1))
+            GridLayout:
+                cols: 2
+                size_hint: 1, None
+                height: "90 dp"
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "    Density (veh/km/lane)"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if ((not root.disable_all_figures) and (not root.executing)) else (0.5, 0.5, 0.5, 1))
+                TextInput:
+                    size_hint: None, None
+                    width: "120 dp"
+                    height: "30 dp"
+                    id: density
+                    text: "80"
+                    disabled: root.disable_all_figures or root.executing
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "    Speed (km/h)"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if ((not root.disable_all_figures) and (not root.executing)) else (0.5, 0.5, 0.5, 1))
+                TextInput:
+                    size_hint: None, None
+                    width: "120 dp"
+                    height: "30 dp"
+                    id: speed
+                    text: "150"
+                    disabled: root.disable_all_figures or root.executing
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "    Flow (veh/h/lane)"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if ((not root.disable_all_figures) and (not root.executing)) else (0.5, 0.5, 0.5, 1))
+                TextInput:
+                    size_hint: None, None
+                    width: "120 dp"
+                    height: "30 dp"
+                    id: flow
+                    text: "2500"
+                    disabled: root.disable_all_figures or root.executing
+            Label:
+                text: "Choose the format for the figures"
+                text_size: self.size
+                halign: "left"
+                valign: "middle"
+                size_hint: 1, None
+                height: "30 dp"
+                color: ((1, 1, 1, 1) if ((not root.disable_all_figures) and (not root.executing)) else (0.5, 0.5, 0.5, 1))
+            GridLayout:
+                cols: 2
+                size_hint: 1, None
+                height: "90 dp"
+                CheckBox:
+                    size_hint: None, 1
+                    width: "30 dp"
+                    active: True
+                    disabled: root.disable_fits or root.executing
+                    id: pdf
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "Portable Document Format (PDF)"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if ((not root.disable_all_figures) and (not root.executing)) else (0.5, 0.5, 0.5, 1))
+                CheckBox:
+                    size_hint: None, 1
+                    width: "30 dp"
+                    active: True
+                    disabled: root.disable_fits or root.executing
+                    id: png
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "Portable Network Graphics (PNG)"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if ((not root.disable_all_figures) and (not root.executing)) else (0.5, 0.5, 0.5, 1))
+                CheckBox:
+                    size_hint: None, 1
+                    width: "30 dp"
+                    active: False
+                    disabled: root.disable_fits or root.executing
+                    id: svg
+                Label:
+                    size_hint: 1, None
+                    height: "30 dp"
+                    text: "Scalable Vector Graphics (SVG)"
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    color: ((1, 1, 1, 1) if ((not root.disable_all_figures) and (not root.executing)) else (0.5, 0.5, 0.5, 1))
+    BoxLayout:
+    
+        id: greybox
+        size_hint: 1, None
+        height: "125 dp"
+        orientation: "vertical"
+        spacing: "0dp"
+        padding: ("0dp", "0dp", "0dp", "0dp")
+        ######################################################### Project start
+        Label:
+            size_hint: 1, None
+            height: "5 dp"
+            text: ""
+            text_size: self.size
+            halign: "left"
+            valign: "middle"
+        Button:
+            id: execute_button
+            size_hint: 1, None
+            height: "30 dp"
+            text: "Execute"
+            text_size: self.size
+            halign: "center"
+            valign: "middle"
+            on_release: root.execute()
+            disabled: root.executing
+        Label:
+            id: status
+            size_hint: 1, None
+            height: "30 dp"
+            text: "Status: waiting for execution"
+            text_size: self.size
+            halign: "left"
+            valign: "middle"
+        Label:
+            size_hint: 1, None
+            height: "30 dp"
+            text: root.progress_message
+            text_size: self.size
+            halign: "left"
+            valign: "middle"
+        ProgressBar:
+            id: probar
+            size_hint: 1, None
+            height: "30 dp"
+
+<DirectoryPopup>:
+    
+    BoxLayout:
+
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+            path: root.initial_path
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: "Select"
+                on_release: root.select_directory(filechooser.path, filechooser.selection)
+
+<FilePopup>:
+    
+    BoxLayout:
+    
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+            path: root.initial_path
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: "Select"
+                on_release: root.select_file(filechooser.path, filechooser.selection)

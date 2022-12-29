@@ -28,9 +28,9 @@ Config.set("graphics", "left", 1)
 class Root(BoxLayout):
     
     #################################################### GUI related variables
-    directory = StringProperty(os.getcwd())
+    directory = StringProperty(os.environ["HOMEPATH"])
     get_files_locally = BooleanProperty(True)
-    path = StringProperty(os.getcwd())
+    path = StringProperty(os.environ["HOMEPATH"])
     disable_individual_scatters = BooleanProperty(False)
     disable_individual_series = BooleanProperty(False)
     disable_scatter = BooleanProperty(False)
@@ -43,6 +43,7 @@ class Root(BoxLayout):
     DA = BooleanProperty(True)
     VA = BooleanProperty(True)
     DC = BooleanProperty(True)
+    UD = BooleanProperty(False)
     workload = 0
     progress = 0
     percentage = 0
@@ -99,7 +100,13 @@ class Root(BoxLayout):
         self.disable_all_figures = all([self.disable_individual_scatters,
                                         self.disable_individual_series,
                                         self.disable_scatter,
-                                        self.disable_fits])        
+                                        self.disable_fits])
+    
+    def manual_models(self):
+        if self.ids.UD.active:
+            self.UD = True
+        else:
+            self.UD = False
 
     #################################################### Gathering all settings
     def execute(self):
@@ -145,17 +152,28 @@ class Root(BoxLayout):
                           not self.disable_scatter,
                           not self.disable_fits]
         input_information["generate_plots"] = generate_plots
-        fit_models = [self.ids.GS.active, self.ids.UN.active,
-                      self.ids.DR.active, self.ids.DA.active,
-                      self.ids.VA.active, self.ids.DE.active]
-        input_information["fit_models"] = fit_models
+        input_information["user-defined models"] = self.UD
+        if not self.UD:
+            fit_models = [self.ids.GS.active, self.ids.UN.active,
+                          self.ids.DR.active, self.ids.DA.active,
+                          self.ids.VA.active, self.ids.DE.active,
+                          self.ids.HC.active, self.ids.CH.active]
+            input_information["fit_models"] = fit_models
         plot_range = [float(self.ids.density.text),
                       float(self.ids.speed.text),
                       float(self.ids.flow.text)]
         input_information["plot_range"] = plot_range
-        if self.ids.format.text == "  Click here to select a format":
-            self.ids.format.text = "  pdf"
-        input_information["format"] = self.ids.format.text[2:]
+        formats = []
+        if self.ids.pdf.active:
+            formats.append('pdf')
+        if self.ids.png.active:
+            formats.append('png')
+        if self.ids.svg.active:
+            formats.append('svg')
+        if len(formats) == 0:
+            self.ids.pdf.active = True
+            formats = ['pdf']
+        input_information["format"] = formats
         
         # estimating workload
         self.workload = 0
@@ -163,7 +181,11 @@ class Root(BoxLayout):
         if not self.disable_individual_scatters: self.workload += 200
         if not self.disable_individual_series: self.workload += 200
         if not self.disable_scatter: self.workload += 30
-        if not self.disable_fits: self.workload += sum(fit_models)*50
+        if not self.disable_fits:
+            if self.UD:
+                self.workload += 200
+            else:
+                self.workload += sum(fit_models)*50
         
         # execute!
         self.progress = 0
@@ -188,11 +210,11 @@ class Root(BoxLayout):
 ###############################################################################
         
 class DirectoryPopup(FloatLayout):
-    initial_path = StringProperty(os.getcwd())
+    initial_path = StringProperty(os.environ["HOMEPATH"])
     select_directory = ObjectProperty(None)
 
 class FilePopup(FloatLayout):
-    initial_path = StringProperty(os.getcwd())
+    initial_path = StringProperty(os.environ["HOMEPATH"])
     select_file = ObjectProperty(None)
 
 class TDAApp(App):

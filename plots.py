@@ -110,12 +110,14 @@ def plot_detector_diagram(title, df, input_information):
     ax3.set_ylim([0,mf])
 
 # ----------------------------------------------------------------- save figure
-    form = input_information["format"]
+    plt.tight_layout()    
+    formats = input_information["format"]
     wd = input_information["directory"]
-    path = os.path.join(wd, 'detector_plots', title+'_FD.'+form)
-    if not os.path.isdir(os.path.join(wd,"detector_plots")):
-        os.mkdir(os.path.join(wd,"detector_plots"))
-    fig.savefig(path, format=form, dpi = 250)
+    for form in formats:
+        path = os.path.join(wd, 'detector_plots', title+'_FD.'+form)
+        if not os.path.isdir(os.path.join(wd,"detector_plots")):
+            os.mkdir(os.path.join(wd,"detector_plots"))
+        fig.savefig(path, format=form, dpi = 750)
     plt.close(fig)
 
 # %% ------------------------------ plot time series of density, speed and flow
@@ -186,12 +188,14 @@ def plot_detector_series(title, df, input_information):
     ax3.yaxis.set_ticks(np.arange(0, mf+1, 500))
 
 # ----------------------------------------------------------------- save figure
-    form = input_information["format"]
+    plt.tight_layout()
+    formats = input_information["format"]
     wd = input_information["directory"]
-    path = os.path.join(wd, 'detector_plots', title+'_S.'+form)
-    if not os.path.isdir(os.path.join(wd,"detector_plots")):
-        os.mkdir(os.path.join(wd,"detector_plots"))
-    fig.savefig(path, format=form, dpi = 250)
+    for form in formats:
+        path = os.path.join(wd, 'detector_plots', title+'_S.'+form)
+        if not os.path.isdir(os.path.join(wd,"detector_plots")):
+            os.mkdir(os.path.join(wd,"detector_plots"))
+        fig.savefig(path, format=form, dpi = 750)
     plt.close(fig)
 
 # %% ------------------------- plot different data sets and or different models
@@ -273,7 +277,7 @@ def plot_data(input_information, df = None, model = None, title = None):
             
         if model is not None:
             # calculate model
-            parameters = model['optimal parameters ('+scenario.lower()+')']
+            parameters = np.array(list(model['Result ('+scenario.lower()+')'].params.valuesdict().values()))
             k_model = np.append(np.linspace(0,99,100), np.logspace(2,3,100))
             if 'keypoints' in model.keys():
                 k_model = np.append(k_model, parameters[model['keypoints']])
@@ -343,9 +347,10 @@ def plot_data(input_information, df = None, model = None, title = None):
             title = title[:100]+'...'
 
     plt.tight_layout()
-    form = input_information["format"]
+    formats = input_information["format"]
     wd = input_information["directory"]
-    path = os.path.join(wd, title+'.'+form)
-    fig.savefig(path, format=form, dpi = 250)
+    for form in formats:
+        path = os.path.join(wd, title+'.'+form)
+        fig.savefig(path, format=form, dpi = 750)
     plt.close(fig)
     
